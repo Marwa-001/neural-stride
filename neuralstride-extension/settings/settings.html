@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuralStride Settings</title>
+    <link rel="stylesheet" href="settings.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚙️ NeuralStride Settings</h1>
+            <p>Customize your posture monitoring experience</p>
+        </header>
+
+        <main>
+            <!-- Voice Settings -->
+            <section class="settings-section">
+                <h2>🎤 Voice Coach</h2>
+                <div class="setting-item">
+                    <label class="toggle-label">
+                        <input type="checkbox" id="voiceEnabled" checked>
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-text">Enable voice coaching</span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <label>Voice Type</label>
+                    <select id="voiceType">
+                        <option value="female">Female</option>
+                        <option value="male">Male</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <label>Alert Frequency</label>
+                    <select id="alertFrequency">
+                        <option value="low">Low (Every 3 min)</option>
+                        <option value="medium">Medium (Every 2 min)</option>
+                        <option value="high">High (Every 1 min)</option>
+                    </select>
+                </div>
+            </section>
+
+            <!-- Notification Settings -->
+            <section class="settings-section">
+                <h2>🔔 Notifications</h2>
+                <div class="setting-item">
+                    <label class="toggle-label">
+                        <input type="checkbox" id="notificationsEnabled" checked>
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-text">Show desktop notifications</span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <label class="toggle-label">
+                        <input type="checkbox" id="soundEnabled">
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-text">Play sound effects</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Monitoring Settings -->
+            <section class="settings-section">
+                <h2>📊 Monitoring</h2>
+                <div class="setting-item">
+                    <label class="toggle-label">
+                        <input type="checkbox" id="autoStart">
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-text">Auto-start on browser open</span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <label>Update Interval</label>
+                    <select id="updateInterval">
+                        <option value="3">3 seconds</option>
+                        <option value="5" selected>5 seconds</option>
+                        <option value="10">10 seconds</option>
+                    </select>
+                </div>
+            </section>
+
+            <!-- Data Management -->
+            <section class="settings-section">
+                <h2>💾 Data Management</h2>
+                <div class="setting-item">
+                    <button class="btn btn-secondary" id="exportData">
+                        📤 Export Session Data
+                    </button>
+                </div>
+                <div class="setting-item">
+                    <button class="btn btn-secondary" id="clearHistory">
+                        🗑️ Clear History
+                    </button>
+                </div>
+                <div class="setting-item">
+                    <button class="btn btn-danger" id="resetSettings">
+                        ⚠️ Reset All Settings
+                    </button>
+                </div>
+            </section>
+
+            <!-- About -->
+            <section class="settings-section">
+                <h2>ℹ️ About</h2>
+                <div class="about-info">
+                    <p><strong>NeuralStride Extension</strong></p>
+                    <p>Version 1.0.0</p>
+                    <p>AI-powered posture monitoring with a living plant companion</p>
+                    <br>
+                    <p><a href="http://localhost:3000" target="_blank">Open Full Dashboard</a></p>
+                    <p><a href="https://github.com/YOUR_USERNAME/neuralstride" target="_blank">GitHub Repository</a></p>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <button class="btn btn-primary" id="saveSettings">💾 Save Settings</button>
+        </footer>
+
+        <div class="toast hidden" id="toast">Settings saved!</div>
+    </div>
+
+    <script src="settings.js"></script>
+</body>
+</html>

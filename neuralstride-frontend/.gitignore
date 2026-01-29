@@ -1,0 +1,56 @@
+git init
+```
+
+---
+
+## 📝 Step 78: Create .gitignore File
+
+In VS Code:
+
+1. **Right-click** on the root folder `neuralstride-frontend`
+2. Click **"New File"**
+3. Name it: `.gitignore`
+4. Press Enter
+
+Copy and paste this into `.gitignore`:
+```
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Testing
+coverage/
+
+# Next.js
+.next/
+out/
+build/
+dist/
+
+# Production
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# TypeScript
+*.tsbuildinfo

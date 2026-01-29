@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuralStride</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="plant-display" id="plantDisplay">🌱</div>
+            <h2 class="title">NeuralStride</h2>
+            <p class="subtitle" id="plantStatus">Your Posture Plant</p>
+        </div>
+
+        <!-- Main Stats -->
+        <div class="stats-card">
+            <div class="score-display">
+                <span class="score-label">Posture Score</span>
+                <span class="score-value" id="scoreValue">--</span>
+                <div class="score-bar">
+                    <div class="score-fill" id="scoreFill"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-icon">⏱️</div>
+                <div class="stat-value" id="sessionTime">--</div>
+                <div class="stat-label">Session</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon">🔥</div>
+                <div class="stat-value" id="streak">0</div>
+                <div class="stat-label">Day Streak</div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button class="btn btn-primary" id="startBtn">
+                <span>▶</span> Start Monitoring
+            </button>
+            <button class="btn btn-secondary hidden" id="stopBtn">
+                <span>■</span> Stop
+            </button>
+            <button class="btn btn-secondary hidden" id="stopBtn">
+    <span>■</span> Stop
+</button>
+<!-- ADD THIS NEW BUTTON -->
+<button class="btn btn-secondary" id="testNotification" style="background: #f59e0b;">
+    🔔 Test Notification
+</button>
+        </div>
+
+        <!-- Footer Links -->
+        <div class="footer">
+            <button class="link-btn" id="openDashboard">
+                📊 Open Full Dashboard
+            </button>
+            <button class="link-btn" id="openSettings">
+                ⚙️ Settings
+            </button>
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>

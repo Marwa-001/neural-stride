@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Extension Icons</title>
+</head>
+<body>
+    <h2>Creating icons... Check your Downloads folder</h2>
+    <canvas id="canvas"></canvas>
+    
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        function createIcon(emoji, size, filename) {
+            canvas.width = size;
+            canvas.height = size;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, size, size);
+            
+            // Draw background circle
+            ctx.fillStyle = '#667eea';
+            ctx.beginPath();
+            ctx.arc(size/2, size/2, size/2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw emoji
+            ctx.font = `${size * 0.6}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(emoji, size/2, size/2);
+            
+            // Download
+            canvas.toBlob(blob => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+        }
+
+        // Wait a bit between downloads to avoid browser blocking
+        let delay = 0;
+        
+        // Create all required icons
+        const icons = [
+            { emoji: '🌱', sizes: [16, 32, 48, 128], name: 'growing' },
+            { emoji: '🌰', sizes: [48], name: 'dormant' },
+            { emoji: '🌸', sizes: [48], name: 'flowering' },
+            { emoji: '🌺', sizes: [48], name: 'bloom' },
+            { emoji: '🥀', sizes: [48], name: 'wilting' }
+        ];
+
+        icons.forEach(icon => {
+            icon.sizes.forEach(size => {
+                setTimeout(() => {
+                    createIcon(icon.emoji, size, `${icon.name}-${size}.png`);
+                }, delay);
+                delay += 300;
+            });
+        });
+
+        setTimeout(() => {
+            document.body.innerHTML = '<h2 style="color: green;">✅ All icons created! Check your Downloads folder.</h2><p>Now move all the .png files to: <code>D:\\NeuralStride\\neuralstride-extension\\icons\\plant-states\\</code></p>';
+        }, delay + 500);
+    </script>
+</body>
+</html>
+```
+
+**Save this file.**
+
+---
+
+## 📥 Step 18: Generate Icons
+
+1. **Open `create-icons.html`** in Chrome (double-click the file)
+2. **Wait 5-10 seconds** - icons will auto-download
+3. **Check your Downloads folder** - you should have 8 PNG files:
+   - growing-16.png
+   - growing-32.png
+   - growing-48.png
+   - growing-128.png
+   - dormant-48.png
+   - flowering-48.png
+   - bloom-48.png
+   - wilting-48.png
+
+---
+
+## 📂 Step 19: Move Icons to Correct Folder
+
+**Move all downloaded PNG files** to:
+```
+D:\NeuralStride\neuralstride-extension\icons\plant-states\

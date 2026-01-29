@@ -1,0 +1,64 @@
+{
+  "manifest_version": 3,
+  "name": "NeuralStride - Living Posture Plant",
+  "version": "2.0.0",
+  "description": "AI-powered posture monitoring with a plant that grows when you sit straight and wilts when you slouch. Your health companion in the browser.",
+  
+  "permissions": [
+    "storage",
+    "alarms",
+    "notifications",
+    "tabs"
+  ],
+  
+  "host_permissions": [
+    "http://localhost:3000/*",
+    "http://127.0.0.1:3000/*"
+  ],
+  
+  "background": {
+    "service_worker": "background/service-worker.js",
+    "type": "module"
+  },
+  
+  "content_scripts": [
+    {
+      "matches": [
+        "http://localhost:3000/*",
+        "http://127.0.0.1:3000/*"
+      ],
+      "js": ["background/content-script.js"],
+      "run_at": "document_start"
+    }
+  ],
+  
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/plant-states/growing-16.png",
+      "32": "icons/plant-states/growing-32.png",
+      "48": "icons/plant-states/growing-48.png",
+      "128": "icons/plant-states/growing-128.png"
+    }
+  },
+  
+  "icons": {
+    "16": "icons/plant-states/growing-16.png",
+    "32": "icons/plant-states/growing-32.png",
+    "48": "icons/plant-states/growing-48.png",
+    "128": "icons/plant-states/growing-128.png"
+  },
+  
+  "externally_connectable": {
+    "matches": [
+      "http://localhost:3000/*",
+      "http://127.0.0.1:3000/*"
+    ]
+  },
+  
+  "options_page": "settings/settings.html",
+  
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  }
+}

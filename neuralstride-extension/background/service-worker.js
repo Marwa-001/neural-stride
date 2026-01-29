@@ -1,4 +1,4 @@
-console.log('NeuralStride extension loaded - v2.0');
+console.log('NeuralStride extension loaded - v2.1 FIXED');
 
 let isMonitoring = false;
 let currentScore = 50;
@@ -26,6 +26,7 @@ chrome.runtime.onInstalled.addListener(() => {
   updatePlantIcon(50);
 });
 
+// FIXED: Handle messages from popup
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   console.log('Message received:', request);
   
@@ -56,18 +57,28 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   return true;
 });
 
+// FIXED: Improved external message handling for web app communication
 chrome.runtime.onMessageExternal.addListener((request, sender, sendResponse) => {
-  console.log('External message from web app:', request);
+  console.log('📨 External message from web app:', request);
   
+  // FIXED: Add ping response
   if (request.action === 'ping') {
-    console.log('Ping received from web app');
-    sendResponse({ status: 'connected' });
+    console.log('🏓 Ping received from web app');
+    sendResponse({ status: 'connected', extensionId: chrome.runtime.id });
     return true;
   }
   
+  // FIXED: Handle posture updates with better validation
   if (request.action === 'updatePosture') {
-    console.log('Posture data received:', request.data);
-    currentScore = request.data.postureScore;
+    console.log('📊 Posture data received:', request.data);
+    
+    if (!request.data) {
+      console.error('❌ No data in posture update');
+      sendResponse({ status: 'error', message: 'No data provided' });
+      return true;
+    }
+    
+    currentScore = request.data.postureScore || 0;
     isMonitoring = true;
     updatePlantIcon(currentScore);
     
@@ -81,7 +92,7 @@ chrome.runtime.onMessageExternal.addListener((request, sender, sendResponse) => 
       }
     });
     
-    // Show notification for poor posture (with cooldown)
+    // FIXED: Show notification for poor posture (with cooldown)
     if (currentScore < 40) {
       const now = Date.now();
       if (now - lastNotificationTime > NOTIFICATION_COOLDOWN) {
@@ -100,17 +111,28 @@ chrome.runtime.onMessageExternal.addListener((request, sender, sendResponse) => 
       }
     }
     
-    sendResponse({ status: 'updated' });
+    sendResponse({ status: 'updated', currentScore: currentScore });
     return true;
   }
   
+  // FIXED: Handle session status with two-way sync
   if (request.action === 'sessionStatus') {
-    console.log('Session status:', request.isActive);
+    console.log('📡 Session status:', request.isActive);
+    
+    const wasMonitoring = isMonitoring;
     isMonitoring = request.isActive;
+    
     if (!request.isActive) {
       updatePlantIcon(0);
     }
-    sendResponse({ status: 'received' });
+    
+    // FIXED: If state changed, notify all tabs
+    if (wasMonitoring !== isMonitoring) {
+      const action = isMonitoring ? 'extensionStartedMonitoring' : 'extensionStoppedMonitoring';
+      notifyWebApp(action);
+    }
+    
+    sendResponse({ status: 'received', wasMonitoring: wasMonitoring, isMonitoring: isMonitoring });
     return true;
   }
   
@@ -121,7 +143,7 @@ function startMonitoring() {
   isMonitoring = true;
   console.log('✅ Monitoring started from extension');
   
-  // Notify web app to start monitoring
+  // FIXED: Notify web app to start monitoring
   notifyWebApp('extensionStartedMonitoring');
   
   chrome.notifications.create({
@@ -136,32 +158,78 @@ function stopMonitoring() {
   isMonitoring = false;
   console.log('⏸️ Monitoring stopped from extension');
   
-  // Notify web app to stop monitoring
+  // FIXED: Notify web app to stop monitoring
   notifyWebApp('extensionStoppedMonitoring');
   
   updatePlantIcon(0);
 }
 
+// FIXED: Improved web app notification with better error handling and retries
 function notifyWebApp(action) {
+  console.log('📤 Attempting to notify web app:', action);
+  
   // Send message to all localhost:3000 tabs
   chrome.tabs.query({ url: 'http://localhost:3000/*' }, (tabs) => {
-    console.log(`📤 Notifying ${tabs.length} web app tabs: ${action}`);
-    tabs.forEach(tab => {
-      if (tab.id) {
-        chrome.tabs.sendMessage(tab.id, { action: action }, (response) => {
+    console.log(`📡 Found ${tabs.length} web app tabs`);
+    
+    if (tabs.length === 0) {
+      console.log('⚠️ No web app tabs found. User may need to open http://localhost:3000');
+      return;
+    }
+    
+    tabs.forEach((tab, index) => {
+      if (!tab.id) {
+        console.log(`⚠️ Tab ${index} has no ID`);
+        return;
+      }
+      
+      console.log(`📤 Sending "${action}" to tab ${tab.id}`);
+      
+      // FIXED: Add retry mechanism for tab messaging
+      const sendWithRetry = (retryCount = 0) => {
+        chrome.tabs.sendMessage(tab?.id, { action: action }, (response) => {
           if (chrome.runtime.lastError) {
-            console.log('⚠️ Web app not ready:', chrome.runtime.lastError.message);
+            console.log(`⚠️ Tab ${tab.id} message failed:`, chrome.runtime.lastError.message);
+            
+            // Retry up to 3 times
+            if (retryCount < 3) {
+              console.log(`🔄 Retrying (${retryCount + 1}/3)...`);
+              setTimeout(() => sendWithRetry(retryCount + 1), 1000);
+            } else {
+              console.log(`❌ Tab ${tab.id} not responding after 3 retries`);
+            }
           } else {
-            console.log('✅ Web app notified successfully');
+            console.log(`✅ Tab ${tab.id} responded:`, response);
           }
         });
-      }
+      };
+      
+      sendWithRetry();
     });
+  });
+  
+  // FIXED: Also check for tabs on 127.0.0.1:3000
+  chrome.tabs.query({ url: 'http://127.0.0.1:3000/*' }, (tabs) => {
+    if (tabs.length > 0) {
+      console.log(`📡 Found ${tabs.length} additional tabs on 127.0.0.1:3000`);
+      tabs.forEach(tab => {
+        if (tab.id) {
+          chrome.tabs.sendMessage(tab.id, { action: action }, (response) => {
+            if (chrome.runtime.lastError) {
+              console.log('⚠️ 127.0.0.1 tab not ready:', chrome.runtime.lastError.message);
+            } else {
+              console.log('✅ 127.0.0.1 tab notified successfully');
+            }
+          });
+        }
+      });
+    }
   });
 }
 
+// FIXED: Improved plant icon update with better logging
 function updatePlantIcon(score) {
-  console.log('🎨 updatePlantIcon called with score:', score);
+  console.log('🎨 updatePlantIcon called with score:', score, 'isMonitoring:', isMonitoring);
   
   let state;
   if (!isMonitoring || score === 0) {
@@ -208,14 +276,36 @@ function updatePlantIcon(score) {
     console.log('🔄 Clearing badge (not monitoring or score 0)');
     chrome.action.setBadgeText({ text: '' });
   }
+  
+  // FIXED: Store current state for popup to access
+  chrome.storage.local.set({
+    currentState: {
+      isMonitoring: isMonitoring,
+      score: score,
+      plantState: state,
+      timestamp: Date.now()
+    }
+  });
 }
 
 chrome.runtime.onConnect.addListener((port) => {
   console.log('🔌 Port connected:', port.name);
 });
 
-// Cleanup on extension unload
+// FIXED: Cleanup on extension unload
 chrome.runtime.onSuspend.addListener(() => {
   console.log('💤 Extension suspending - cleaning up');
   isMonitoring = false;
+  
+  // Save final state
+  chrome.storage.local.set({
+    lastSuspendState: {
+      isMonitoring: false,
+      timestamp: Date.now()
+    }
+  });
 });
+
+// FIXED: Send extension ID to console for easy copying
+console.log('🆔 Extension ID:', chrome.runtime.id);
+console.log('📋 Copy this ID to extensionBridge.ts if needed');

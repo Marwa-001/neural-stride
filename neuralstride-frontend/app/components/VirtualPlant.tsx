@@ -14,20 +14,21 @@ export default function VirtualPlant({ postureScore, isMonitoring }: VirtualPlan
   const animationFrameRef = useRef<number>(0);
   const lastUpdateTime = useRef<number>(Date.now());
 
-  // Update plant health based on posture (more gradual changes)
+  // FIXED: Update plant health more frequently and responsively (500ms instead of 2000ms)
   useEffect(() => {
     if (!isMonitoring) {
       // Reset to neutral when not monitoring
       const resetInterval = setInterval(() => {
         setPlantHealth(prev => {
-          if (prev > 50) return Math.max(50, prev - 0.5);
-          if (prev < 50) return Math.min(50, prev + 0.5);
+          if (prev > 50) return Math.max(50, prev - 0.3);
+          if (prev < 50) return Math.min(50, prev + 0.3);
           return prev;
         });
-      }, 2000);
+      }, 1000);
       return () => clearInterval(resetInterval);
     }
 
+    // FIXED: Much faster update interval for responsive feedback
     const interval = setInterval(() => {
       const now = Date.now();
       const deltaTime = (now - lastUpdateTime.current) / 1000; // seconds
@@ -36,21 +37,21 @@ export default function VirtualPlant({ postureScore, isMonitoring }: VirtualPlan
       setPlantHealth(prev => {
         let changeRate = 0;
         
-        // More realistic growth/wilting rates based on posture score
+        // FIXED: More aggressive change rates for better visual feedback
         if (postureScore >= 85) {
-          changeRate = 0.8; // Excellent posture - slow steady growth
+          changeRate = 2.5; // Excellent posture - faster growth
         } else if (postureScore >= 70) {
-          changeRate = 0.5; // Good posture - moderate growth
+          changeRate = 1.5; // Good posture - steady growth
         } else if (postureScore >= 55) {
-          changeRate = 0.2; // Fair posture - very slow growth
+          changeRate = 0.5; // Fair posture - slow growth
         } else if (postureScore >= 45) {
-          changeRate = -0.1; // Below fair - slight decline
+          changeRate = -0.5; // Below fair - slow decline
         } else if (postureScore >= 35) {
-          changeRate = -0.5; // Poor posture - moderate decline
+          changeRate = -1.5; // Poor posture - faster decline
         } else if (postureScore >= 25) {
-          changeRate = -1.0; // Very poor - faster decline
+          changeRate = -3.0; // Very poor - rapid decline
         } else {
-          changeRate = -1.8; // Critical - rapid decline
+          changeRate = -4.5; // Critical - very rapid decline
         }
         
         // Apply change with time compensation
@@ -60,7 +61,7 @@ export default function VirtualPlant({ postureScore, isMonitoring }: VirtualPlan
         // Clamp between 0 and 100
         return Math.max(0, Math.min(100, newHealth));
       });
-    }, 2000); // Update every 2 seconds
+    }, 500); // FIXED: Update every 500ms instead of 2000ms for faster response
 
     return () => clearInterval(interval);
   }, [postureScore, isMonitoring]);
@@ -437,7 +438,7 @@ export default function VirtualPlant({ postureScore, isMonitoring }: VirtualPlan
           </div>
           <div className="w-full bg-gray-700 rounded-full h-3">
             <div
-              className={`h-3 rounded-full transition-all duration-1000 ${
+              className={`h-3 rounded-full transition-all duration-500 ${
                 plantHealth >= 85 ? 'bg-green-400' :
                 plantHealth >= 68 ? 'bg-lime-400' :
                 plantHealth >= 48 ? 'bg-yellow-400' :
@@ -461,6 +462,16 @@ export default function VirtualPlant({ postureScore, isMonitoring }: VirtualPlan
             </div>
           </div>
         </div>
+
+        {/* FIXED: Added real-time posture score display for debugging */}
+        {isMonitoring && (
+          <div className="bg-blue-900/30 border border-blue-700/50 rounded-lg p-2">
+            <div className="text-xs text-center">
+              <span className="text-blue-200">Current Posture: </span>
+              <span className="text-white font-bold">{postureScore}/100</span>
+            </div>
+          </div>
+        )}
 
         {!isMonitoring && (
           <div className="bg-yellow-900/30 border border-yellow-700/50 rounded-lg p-3">
